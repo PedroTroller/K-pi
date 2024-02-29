@@ -1,0 +1,23 @@
+---
+name: K-pi
+description: Compile, verify and publish metrics
+inputs:
+  configuration_file:
+    description: 'The path to the configuration file'
+    required: false
+    default: '.k-pi.dist.yaml'
+    type: 'string'
+  report_name:
+    description: 'One of the report names configured in the configuration file'
+    required: true
+    type: 'string'
+  value:
+    description: 'The metric value read (integer or float)'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.configuration_file }}
+    - ${{ inputs.report_name }}
+    - ${{ inputs.value }}

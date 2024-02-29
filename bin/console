@@ -1,0 +1,35 @@
+#!/usr/bin/env php
+<?php
+
+use App\Command\CheckCommand;
+use App\Command\CompileCommand;
+use App\Template;
+use Github\Client;
+use Symfony\Component\Console\Application;
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+if (is_string($githubToken = getenv('GITHUB_TOKEN')) === false) {
+    throw new Exception('No GITHUB_TOKEN env variable found.');
+}
+
+$github = new Client();
+$github->authenticate($githubToken, authMethod: Client::AUTH_ACCESS_TOKEN);
+
+$template = new Template();
+
+$application = new Application();
+$application->addCommands(
+    [
+        new CheckCommand(
+            $github->graphql(),
+            $template,
+        ),
+        new CompileCommand(
+            $github->graphql(),
+            $template,
+        ),
+    ],
+);
+
+$application->run();
