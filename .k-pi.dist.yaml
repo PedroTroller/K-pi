@@ -1,0 +1,22 @@
+---
+reports:
+  github-security:
+    extra:
+      Total: total
+    colors:
+      Total: '#53a94e'
+      LOW: '#808080'
+      MODERATE: '#FFFF00'
+      HIGH: '#FFC100'
+      CRITICAL: '#FF0000'
+    storage:
+      github-discussion:
+        url: https://github.com/PedroTroller/K-pi/discussions/8
+  phpstan-baseline:
+    extra:
+      Total: total
+    storage:
+      github-discussion:
+        url: https://github.com/PedroTroller/K-pi/discussions/10
+    check-reporter:
+      github-check-run: ~

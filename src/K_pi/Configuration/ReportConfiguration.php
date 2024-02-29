@@ -1,0 +1,176 @@
+<?php
+
+declare(strict_types=1);
+
+namespace K_pi\Configuration;
+
+use K_pi\Configuration\Exception\AtPathException;
+use K_pi\Data\Extra;
+use K_pi\Data\Integration;
+use K_pi\Data\StorageIntegration;
+
+final class ReportConfiguration
+{
+    public function __construct(private readonly object $configuration, private string $reportName)
+    {
+    }
+
+    /**
+     * @return array{StorageIntegration, mixed}
+     */
+    public function getStorageConfiguration(): array
+    {
+        if (false === property_exists($this->configuration, 'storage')) {
+            throw new AtPathException(sprintf('.reports.%s', $this->reportName), 'property "storage" is mandatory');
+        }
+
+        foreach (get_object_vars($this->configuration->storage) as $integrationName => $integrationConfiguration) {
+            $integration = StorageIntegration::tryFrom($integrationName);
+
+            if (null === $integration) {
+                throw new AtPathException(
+                    sprintf('.reports.%s.storage', $this->reportName),
+                    sprintf(
+                        'integration "%s" does not exists, must be %s',
+                        $integration,
+                        join(" or ", array_map(
+                            fn (StorageIntegration $integration) => '"' . $integration->value . '"',
+                            StorageIntegration::cases(),
+                        ))
+                    )
+                );
+            }
+
+            return [$integration, $integrationConfiguration];
+        }
+
+        throw new AtPathException(
+            sprintf('.reports.%s.storage', $this->reportName),
+            sprintf(
+                'integration is mandatory, must be %s',
+                join(" or ", array_map(
+                    fn (StorageIntegration $integration) => '"' . $integration->value . '"',
+                    StorageIntegration::cases(),
+                ))
+            )
+        );
+    }
+
+    /**
+     * @return iterable<non-empty-string, non-empty-string>
+     */
+    public function getColors(): iterable
+    {
+        if (false === property_exists($this->configuration, 'colors')) {
+            return;
+        }
+
+        $colors = $this->configuration->colors;
+
+        if (false === is_object($colors)) {
+            throw new AtPathException(
+                sprintf('.reports.%s.colors', $this->reportName),
+                'non empty object is expected'
+            );
+        }
+
+        $empty = true;
+
+        foreach (get_object_vars($colors) as $name => $value) {
+            $empty = false;
+
+            if ('' === $name) {
+                throw new AtPathException(
+                    sprintf('.reports.%s.colors', $this->reportName),
+                    sprintf(
+                        'property name must be non-empty string',
+                    )
+                );
+            }
+
+            if (false === is_string($value) || '' === $value) {
+                throw new AtPathException(
+                    sprintf('.reports.%s.colors.%s', $this->reportName, $name),
+                    'color must be non-empty string',
+                );
+            }
+
+            yield $name => $value;
+        }
+
+        if ($empty) {
+            throw new AtPathException(
+                sprintf('.reports.%s.colors', $this->reportName),
+                'non empty object is expected'
+            );
+        }
+    }
+
+    /**
+     * @return iterable<non-empty-string, Extra>
+     */
+    public function getExtra(): iterable
+    {
+        if (false === property_exists($this->configuration, 'extra')) {
+            return;
+        }
+
+        $extra = $this->configuration->extra;
+
+        if (false === is_object($extra)) {
+            throw new AtPathException(
+                sprintf('.reports.%s.extra', $this->reportName),
+                'non empty object is expected'
+            );
+        }
+
+        $empty = true;
+
+        foreach (get_object_vars($extra) as $name => $value) {
+            $empty = false;
+
+            if ('' === $name) {
+                throw new AtPathException(
+                    sprintf('.reports.%s.extra', $this->reportName),
+                    sprintf(
+                        'property name must be non-empty string',
+                    )
+                );
+            }
+
+            if (false === is_string($value)) {
+                throw new AtPathException(
+                    sprintf('.reports.%s.extra.%s', $this->reportName, $name),
+                    sprintf(
+                        'must be a string'
+                    )
+                );
+            }
+
+            $enum = Extra::tryFrom($value);
+
+            if (null === $enum) {
+                throw new AtPathException(
+                    sprintf('.reports.%s.extra.%s', $this->reportName, $name),
+                    sprintf(
+                        'extra "%s" does not exists, must be %s',
+                        $value,
+                        join(" or ", array_map(
+                            fn (Extra $extra) => '"' . $extra->value . '"',
+                            Extra::cases(),
+                        ))
+                    )
+                );
+            }
+
+            yield $name => $enum;
+        }
+
+        if ($empty) {
+            throw new AtPathException(
+                sprintf('.reports.%s.extra', $this->reportName),
+                'non empty object is expected'
+            );
+        }
+    }
+}

@@ -1,0 +1,33 @@
+<?php
+
+namespace spec\K_pi\Integration\Github\Discussion\Storage;
+
+use K_pi\Integration\Github;
+use K_pi\Integration\Github\Discussion\Configuration;
+use K_pi\Integration\Github\Discussion\Storage;
+use K_pi\Integration\Github\Discussion\Storage\Factory;
+use PhpSpec\ObjectBehavior;
+use stdClass;
+
+class FactorySpec extends ObjectBehavior
+{
+    function let(Github $github)
+    {
+        $this->beConstructedWith($github);
+    }
+
+    function it_is_initializable()
+    {
+        $this->shouldHaveType(Factory::class);
+    }
+
+    function it_is_able_to_parse_configuration(Github $github)
+    {
+        $configuration = new stdClass;
+        $configuration->url = 'https://github.com/KnpLabs/K-pi/discussions/42';
+
+        $this->build('test', $configuration)->shouldBeLike(
+            new Storage(new Configuration('test', $configuration), $github->getWrappedObject())
+        );
+    }
+}

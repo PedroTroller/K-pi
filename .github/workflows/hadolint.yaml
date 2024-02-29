@@ -1,0 +1,11 @@
+---
+on: push
+
+jobs:
+  hadolint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: docker://hadolint/hadolint
+        with:
+          entrypoint: hadolint
+          args: Dockerfile
