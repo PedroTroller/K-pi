@@ -6,7 +6,7 @@
         "knplabs/github-api": "3.11.*",
         "nyholm/psr7": "1.7.*",
         "symfony/console": "5.4.*",
-        "symfony/http-client": "6.2.*"
+        "symfony/http-client": "7.0.*"
     },
     "require-dev": {
         "phpspec/phpspec": "7.5.*"
