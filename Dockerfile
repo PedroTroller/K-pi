@@ -8,7 +8,7 @@ RUN composer install --ignore-platform-reqs --no-scripts --no-plugins
 
 ##################################
 
-FROM php:8.3.0-cli-alpine3.19
+FROM php:8.3.3-cli-alpine3.19
 
 WORKDIR /K-pi
 
