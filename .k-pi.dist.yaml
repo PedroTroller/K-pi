@@ -1,0 +1,14 @@
+---
+reports:
+  github-security:
+    extra:
+      Total: total
+    colors:
+      Total: '#4E78A9'
+      LOW: '#808080'
+      MODERATE: '#FFFF00'
+      HIGH: '#FFC100'
+      CRITICAL: '#FF0000'
+    storage:
+      github-discussion:
+        url: https://github.com/PedroTroller/K-pi/discussions/8
