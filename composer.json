@@ -5,7 +5,7 @@
         "ianw/quickchart": "1.2.*",
         "knplabs/github-api": "3.11.*",
         "nyholm/psr7": "1.7.*",
-        "symfony/console": "5.4.*",
+        "symfony/console": "7.0.*",
         "symfony/http-client": "6.2.*"
     },
     "require-dev": {
