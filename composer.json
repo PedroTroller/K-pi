@@ -4,7 +4,7 @@
         "beberlei/assert": "3.3.*",
         "ianw/quickchart": "1.2.*",
         "knplabs/github-api": "3.11.*",
-        "nyholm/psr7": "1.7.*",
+        "nyholm/psr7": "1.8.*",
         "symfony/console": "5.4.*",
         "symfony/http-client": "6.2.*"
     },
