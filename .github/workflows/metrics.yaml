@@ -1,6 +1,9 @@
 ---
 on: push
 
+permissions:
+  checks: write
+
 jobs:
   github-security:
     runs-on: ubuntu-latest
