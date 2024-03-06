@@ -15,6 +15,7 @@ use K_pi\EnvVars;
 use K_pi\Integration\Github\Discussion\Storage\Factory;
 use K_pi;
 use K_pi\Integration\Github\Discussion\Storage\Factory as Factory2;
+use K_pi\Integration\Github\Variables;
 use K_pi\Integrations;
 use Symfony;
 use Symfony\Component\Console\Application;
@@ -34,6 +35,14 @@ final class Definitions
             K_pi\Storage\Integrations::class,
             fn (Container $container) => new K_pi\Storage\Integrations(
                 $container->get(K_pi\Integration\Github\Discussion\Storage\Factory::class)
+            )
+        );
+
+        $container->define(
+            K_pi\CheckReporter\Integrations::class,
+            fn (Container $container) => new K_pi\CheckReporter\Integrations(
+                $container->get(K_pi\Integration\Github\CheckRun\CheckReporter\Factory::class),
+                $container->get(K_pi\Integration\Github\Status\CheckReporter\Factory::class),
             )
         );
 
@@ -72,6 +81,7 @@ final class Definitions
             K_pi\Command\CheckCommand::class,
             fn (Container $container) => new K_pi\Command\CheckCommand(
                 $container->get(K_pi\Storage\Integrations::class),
+                $container->get(K_pi\CheckReporter\Integrations::class),
                 $container->get(K_pi\EnvVars::class),
                 $container->get(K_pi\Configuration\Extractor::class),
             ),
@@ -81,13 +91,20 @@ final class Definitions
     private static function buildGithub(Container $container): void
     {
         $container->define(
+            K_pi\Integration\Github\Variables::class,
+            fn (Container $container) => new K_pi\Integration\Github\Variables(
+                $container->get(K_pi\EnvVars::class)
+            )
+        );
+
+        $container->define(
             Github\Client::class,
             function (Container $container) {
                 $client = new Github\Client();
                 $client->authenticate(
                     $container
-                        ->get(K_pi\EnvVars::class)
-                        ->get('GITHUB_TOKEN'),
+                        ->get(K_pi\Integration\Github\Variables::class)
+                        ->getToken(),
                     Github\Client::AUTH_ACCESS_TOKEN,
                 );
 
@@ -96,15 +113,10 @@ final class Definitions
         );
 
         $container->define(
-            Github\Api\GraphQL::class,
-            fn (Container $container) => $container->get(Github\Client::class)->graphql(),
-        );
-
-        $container->define(
             K_pi\Libs\KnpGithubApi\Github::class,
             fn (Container $container) => new K_pi\Libs\KnpGithubApi\Github(
                 $container->get(
-                    Github\Api\GraphQL::class,
+                    Github\Client::class,
                 )
             ),
         );
@@ -125,6 +137,22 @@ final class Definitions
             K_pi\Integration\Github\Discussion\Storage\Factory::class,
             fn (Container $container) => new K_pi\Integration\Github\Discussion\Storage\Factory(
                 $container->get(K_pi\Integration\Github::class),
+            ),
+        );
+
+        $container->define(
+            K_pi\Integration\Github\CheckRun\CheckReporter\Factory::class,
+            fn (Container $container) => new K_pi\Integration\Github\CheckRun\CheckReporter\Factory(
+                $container->get(K_pi\Integration\Github::class),
+                $container->get(K_pi\Integration\Github\Variables::class),
+            ),
+        );
+
+        $container->define(
+            K_pi\Integration\Github\Status\CheckReporter\Factory::class,
+            fn (Container $container) => new K_pi\Integration\Github\Status\CheckReporter\Factory(
+                $container->get(K_pi\Integration\Github::class),
+                $container->get(K_pi\Integration\Github\Variables::class),
             ),
         );
     }

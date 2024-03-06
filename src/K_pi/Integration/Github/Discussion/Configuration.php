@@ -4,26 +4,16 @@ declare(strict_types=1);
 
 namespace K_pi\Integration\Github\Discussion;
 
+use Exception;
 use K_pi\Configuration\Exception\AtPathException;
+use K_pi\Data\Github\ResourceUrl;
 use K_pi\Data\Integration;
 use K_pi\Data\StorageIntegration;
+use Throwable;
 
 final class Configuration
 {
-    /**
-     * @var non-empty-string
-     */
-    public readonly string $owner;
-
-    /**
-     * @var non-empty-string
-     */
-    public readonly string $repository;
-
-    /**
-     * @var positive-int
-     */
-    public readonly int $discussion;
+    public readonly ResourceUrl $discussion;
 
     public readonly bool $report;
 
@@ -34,19 +24,16 @@ final class Configuration
         if (false === is_object($configuration)) {
             throw new AtPathException(
                 sprintf('.reports.%s.storage.%s', $this->reportName, StorageIntegration::GITHUB_DISCUSSION->value),
-                'object is expected'
+                'object is expected.'
             );
         }
 
-        [$this->owner, $this->repository, $this->discussion] = $this->parseUrl($configuration);
+        $this->discussion = $this->parseUrl($configuration);
         $this->report = $this->parseBool($configuration, 'report', true);
         $this->persist = $this->parseBool($configuration, 'persist', true);
     }
 
-    /**
-     * @return array{non-empty-string, non-empty-string, int<1, max>}
-     */
-    public function parseUrl(object $configuration): array
+    private function parseUrl(object $configuration): ResourceUrl
     {
         if (false === property_exists($configuration, 'url')) {
             throw new AtPathException(
@@ -55,41 +42,28 @@ final class Configuration
                     $this->reportName,
                     StorageIntegration::GITHUB_DISCUSSION->value,
                 ),
-                'property "url" is mandatory'
+                'property "url" is mandatory.'
             );
         }
 
-        $url = $configuration->url;
+        try {
+            $url = new ResourceUrl($configuration->url);
 
-        $path = sprintf(
-            '.reports.%s.storage.%s.url',
-            $this->reportName,
-            StorageIntegration::GITHUB_DISCUSSION->value,
-        );
-
-        $message = 'invalid Github discussion url';
-
-        if (false === is_string($url)) {
-            throw new AtPathException($path, $message);
+            if ('discussions' !== $url->type) {
+                throw new Exception('invalid Github discussion url');
+            }
+        } catch(Throwable $previous) {
+            throw AtPathException::buildFromThrowable(
+                sprintf(
+                    '.reports.%s.storage.%s.url',
+                    $this->reportName,
+                    StorageIntegration::GITHUB_DISCUSSION->value,
+                ),
+                $previous
+            );
         }
 
-        if (!preg_match('#^https://github\.com/(.+)/(.+)/discussions/(\d+)$#', $url, $matches)) {
-            throw new AtPathException($path, $message);
-        }
-
-        [, $owner, $repository, $discussion] = $matches;
-
-        if ('' === $owner || '' === $repository) {
-            throw new AtPathException($path, $message);
-        }
-
-        $discussion = (int) $discussion;
-
-        if (0 >= $discussion) {
-            throw new AtPathException($path, $message);
-        }
-
-        return [$owner, $repository, $discussion];
+        return $url;
     }
 
     private function parseBool(object $configuration, string $key, bool $default): bool
@@ -108,7 +82,7 @@ final class Configuration
                     StorageIntegration::GITHUB_DISCUSSION->value,
                     $key
                 ),
-                'must be a boolean'
+                'must be a boolean.'
             );
         }
 

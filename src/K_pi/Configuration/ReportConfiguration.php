@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace K_pi\Configuration;
 
 use K_pi\Configuration\Exception\AtPathException;
+use K_pi\Data\CheckReporterIntegration;
 use K_pi\Data\Extra;
 use K_pi\Data\Integration;
 use K_pi\Data\StorageIntegration;
@@ -54,6 +55,64 @@ final class ReportConfiguration
                 ))
             )
         );
+    }
+
+    /**
+     * @return iterable<CheckReporterIntegration, mixed>
+     */
+    public function getCheckReportersConfiguration(): iterable
+    {
+        $configuration = get_object_vars($this->configuration);
+
+        if (false === array_key_exists('check-reporter', $configuration)) {
+            return [];
+        }
+
+        $checkReporters = $configuration['check-reporter'];
+
+        if (false === is_object($checkReporters)) {
+            throw new AtPathException(
+                sprintf('.reports.%s.check-reporter', $this->reportName),
+                'object expected',
+            );
+        }
+
+        $empty = true;
+
+        foreach (get_object_vars($checkReporters) as $integrationName => $integrationConfiguration) {
+            $integration = CheckReporterIntegration::tryFrom($integrationName);
+
+            if (null === $integration) {
+                throw new AtPathException(
+                    sprintf('.reports.%s.check-reporter', $this->reportName),
+                    sprintf(
+                        'integration "%s" does not exists, must be %s',
+                        $integration,
+                        join(" or ", array_map(
+                            fn (CheckReporterIntegration $integration) => '"' . $integration->value . '"',
+                            CheckReporterIntegration::cases(),
+                        ))
+                    )
+                );
+            }
+
+            $empty = false;
+
+            yield $integration => $integrationConfiguration;
+        }
+
+        if ($empty) {
+            throw new AtPathException(
+                sprintf('.reports.%s.check-reporter', $this->reportName),
+                sprintf(
+                    'integration is mandatory, must be %s',
+                    join(" or ", array_map(
+                        fn (CheckReporterIntegration $integration) => '"' . $integration->value . '"',
+                        CheckReporterIntegration::cases(),
+                    ))
+                )
+            );
+        }
     }
 
     /**

@@ -7,6 +7,22 @@ namespace K_pi;
 final class Container
 {
     /**
+     * @var array<class-string, callable(Container $container): object>
+     */
+    private array $definitions;
+
+    /**
+     * @var array<class-string, object>
+     */
+    private array $services;
+
+    public function __construct()
+    {
+        $this->definitions = [];
+        $this->services = [];
+    }
+
+    /**
      * @template T of object
      *
      * @param class-string<T> $service
@@ -49,21 +65,5 @@ final class Container
         }
 
         throw new \Exception("Service $service not found.");
-    }
-
-    /**
-     * @var array<class-string, callable(Container $container): object>
-     */
-    private array $definitions;
-
-    /**
-     * @var array<class-string, object>
-     */
-    private array $services;
-
-    public function __construct()
-    {
-        $this->definitions = [];
-        $this->services = [];
     }
 }

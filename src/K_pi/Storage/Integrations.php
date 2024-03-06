@@ -16,9 +16,6 @@ final class Integrations
 
     }
 
-    /**
-     * @return Storage\Factory<Storage>
-     */
     public function get(StorageIntegration $integration): Storage\Factory
     {
         return match($integration) {

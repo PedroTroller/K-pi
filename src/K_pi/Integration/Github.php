@@ -2,6 +2,8 @@
 
 namespace K_pi\Integration;
 
+use K_pi\Data\Github\StatusState;
+
 interface Github
 {
     /**
@@ -16,5 +18,30 @@ interface Github
     public function writeDiscussion(
         string $id,
         string $body,
+    ): void;
+
+    /**
+     * @param positive-int $pullRequest
+     * @param non-empty-string $checkName
+     */
+    public function createCheckRun(
+        string $owner,
+        string $repository,
+        int $pullRequest,
+        string $checkName,
+    ): void;
+
+    /**
+     * @param positive-int $pullRequest
+     * @param non-empty-string $context
+     * @param non-empty-string $description
+     */
+    public function createStatus(
+        string $owner,
+        string $repository,
+        int $pullRequest,
+        StatusState $state,
+        string $context,
+        string $description,
     ): void;
 }

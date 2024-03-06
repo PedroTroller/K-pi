@@ -11,9 +11,6 @@ use K_pi\Integration\Github\Discussion\Storage;
 use K_pi\Storage as StorageInterface;
 use K_pi\Storage\Factory as FactoryInterface;
 
-/**
- * @implements FactoryInterface<StorageInterface>
- */
 final class Factory implements FactoryInterface
 {
     public function __construct(

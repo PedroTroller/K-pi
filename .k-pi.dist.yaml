@@ -4,7 +4,6 @@ reports:
     extra:
       Total: total
     colors:
-      Total: '#53a94e'
       LOW: '#808080'
       MODERATE: '#FFFF00'
       HIGH: '#FFC100'
@@ -12,11 +11,11 @@ reports:
     storage:
       github-discussion:
         url: https://github.com/PedroTroller/K-pi/discussions/8
-  phpstan-baseline:
-    extra:
-      Total: total
+  coverage:
     storage:
       github-discussion:
-        url: https://github.com/PedroTroller/K-pi/discussions/10
+        url: https://github.com/PedroTroller/K-pi/discussions/12
     check-reporter:
-      github-check-run: ~
+      github-status:
+        states: higher-is-better
+        unit: '%'

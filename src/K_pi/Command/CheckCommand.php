@@ -6,11 +6,13 @@ namespace K_pi\Command;
 
 use Assert\Assert;
 use K_pi\Configuration\Extractor;
+use K_pi\Data\Diff;
 use K_pi\Data\Integration;
 use K_pi\Data\StorageIntegration;
 use K_pi\EnvVars;
 use K_pi\Integrations;
 use K_pi\Storage;
+use K_pi\CheckReporter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,8 +21,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class CheckCommand extends Command
 {
-    public function __construct(private readonly Storage\Integrations $integrations, private readonly EnvVars $envVars, private Extractor $extractor)
-    {
+    public function __construct(
+        private readonly Storage\Integrations $storageIntegrations,
+        private readonly CheckReporter\Integrations $checkReporterIntegrations,
+        private readonly EnvVars $envVars,
+        private Extractor $extractor
+    ) {
         parent::__construct();
     }
 
@@ -40,6 +46,11 @@ final class CheckCommand extends Command
         $this->configureGithub($input);
 
         $reportName = $this->readArgument($input, 'report-name');
+
+        if ('' === $reportName) {
+            throw new \Exception('"report-name" argument can\'t be an empty string.');
+        }
+
         $configuration = $this->extractor->extract($input);
 
         if (null === $configuration) {
@@ -51,23 +62,28 @@ final class CheckCommand extends Command
         $report = $storage->read();
         $values = $this->getValues($input);
 
-        $notification = array_filter(
-            array_combine(
-                array_keys($values),
-                array_map(
-                    fn(int|float $value, string $name): int|float  => $value - ($report->last($name) ?? 0),
-                    $values,
-                    array_keys($values),
-                ),
+        $notifications = array_map(
+            fn (int|float $value, string $name): Diff => new Diff(
+                name: $name,
+                from: $report->last($name) ?? 0,
+                to: $value,
             ),
-            fn (int|float $diff): bool => false === in_array($diff, [0, 0.0]),
+            array_values($values),
+            array_keys($values),
         );
 
-        if ([] === $notification) {
+        if ([] === $notifications) {
             return self::SUCCESS;
         }
 
-        var_dump($notification);
+        foreach ($reportConfiguration->getCheckReportersConfiguration() as $checkReporterIntegration => $checkReporterConfiguration) {
+            $this
+                ->checkReporterIntegrations
+                ->get($checkReporterIntegration)
+                ->build($checkReporterConfiguration, $reportName)
+                ->send(...$notifications)
+            ;
+        }
 
         return self::SUCCESS;
     }
@@ -99,7 +115,7 @@ final class CheckCommand extends Command
 
     private function getStorage(string $reportName, StorageIntegration $integration, mixed $configuration): Storage
     {
-        return $this->integrations->get($integration)->build($reportName, $configuration);
+        return $this->storageIntegrations->get($integration)->build($reportName, $configuration);
     }
 
     /**

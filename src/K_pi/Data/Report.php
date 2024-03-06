@@ -12,10 +12,6 @@ use Traversable;
  */
 final class Report implements IteratorAggregate
 {
-    public function getIterator(): Traversable
-    {
-        yield from $this->datasets;
-    }
     /**
      * @var array<non-empty-string, non-empty-array<non-empty-string, float|int>>
      */
@@ -25,6 +21,11 @@ final class Report implements IteratorAggregate
      * @var array<non-empty-string, non-empty-string>
      */
     private array $colors = [];
+
+    public function getIterator(): Traversable
+    {
+        yield from $this->datasets;
+    }
 
     /**
      * @param non-empty-string $name
@@ -77,7 +78,7 @@ final class Report implements IteratorAggregate
     /**
      * @param non-empty-string $name
      *
-     * @return null|int|mixed
+     * @return null|int|float
      */
     public function last(string $name): mixed
     {
