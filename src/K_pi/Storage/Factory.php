@@ -4,13 +4,10 @@ namespace K_pi\Storage;
 
 use K_pi\Storage;
 
-/**
- * @template T of Storage
- */
 interface Factory
 {
     /**
-     * @return T
+     * @param non-empty-string $reportName
      */
     public function build(string $reportName, mixed $configuration): Storage;
 }

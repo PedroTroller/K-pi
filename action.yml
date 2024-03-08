@@ -25,6 +25,9 @@ inputs:
     description: The GitHub token used to create an authenticated client
     default: ${{ github.token }}
     required: false
+  github_pull_request:
+    default: ${{ github.event.pull_request.html_url }}
+    required: false
 runs:
   using: 'docker'
   image: 'Dockerfile'

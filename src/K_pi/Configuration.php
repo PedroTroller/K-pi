@@ -13,6 +13,9 @@ final class Configuration
     {
     }
 
+    /**
+     * @param non-empty-string $reportName
+     */
     public function get(string $reportName): ReportConfiguration
     {
         if (false === property_exists($this->configuration, 'reports')) {

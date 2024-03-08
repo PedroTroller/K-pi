@@ -11,7 +11,10 @@ final class EnvVars
      */
     private array $defaults = [];
 
-    public function get(string $name): string
+    /**
+     * @param non-empty-string $name
+     */
+    private function read(string $name): ?string
     {
         if (is_string($env = getenv($name))) {
             return $env;
@@ -21,7 +24,29 @@ final class EnvVars
             return $this->defaults[$name];
         }
 
-        throw new \Exception("$name env variable not found.");
+        return null;
+    }
+
+    /**
+     * @param non-empty-string $name
+     */
+    public function get(string $name): string
+    {
+        $env = $this->read($name);
+
+        if (null === $env) {
+            throw new \Exception("$name env variable not found.");
+        }
+
+        return $env;
+    }
+
+    /**
+     * @param non-empty-string $name
+     */
+    public function has(string $name): bool
+    {
+        return null !== $this->read($name);
     }
 
     /**

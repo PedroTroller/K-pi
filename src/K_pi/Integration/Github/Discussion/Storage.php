@@ -35,9 +35,9 @@ final class Storage implements StorageInterface
         }
 
         $discussion = $this->github->readDiscussion(
-            owner: $this->configuration->owner,
-            repository: $this->configuration->repository,
-            number: $this->configuration->discussion,
+            owner: $this->configuration->discussion->owner,
+            repository: $this->configuration->discussion->repository,
+            number: $this->configuration->discussion->number,
         );
 
         return $this->contentToReport($discussion['body']);
@@ -46,9 +46,9 @@ final class Storage implements StorageInterface
     public function write(Report $report, ReportConfiguration $configuration): void
     {
         $discussion = $this->github->readDiscussion(
-            owner: $this->configuration->owner,
-            repository: $this->configuration->repository,
-            number: $this->configuration->discussion,
+            owner: $this->configuration->discussion->owner,
+            repository: $this->configuration->discussion->repository,
+            number: $this->configuration->discussion->number,
         );
 
         $this->github->writeDiscussion(
