@@ -19,3 +19,7 @@ reports:
       github-status:
         states: higher-is-better
         unit: '%'
+  outdated-dependencies:
+    storage:
+      github-discussion:
+        url: https://github.com/PedroTroller/K-pi/discussions/14

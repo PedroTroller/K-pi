@@ -1,4 +1,4 @@
 /coverage/
-/php-metrics/
+/phpmetrics/
 /vendor/
 /.php-cs-fixer.cache
