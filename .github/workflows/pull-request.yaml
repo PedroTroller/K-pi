@@ -1,0 +1,9 @@
+---
+on: pull_request
+
+jobs:
+
+  phpmetrics:
+    uses: ./.github/workflows/example-phpmetrics.yaml
+    with:
+      command: check
