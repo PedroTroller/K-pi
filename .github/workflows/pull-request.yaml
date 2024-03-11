@@ -1,0 +1,15 @@
+---
+on: pull_request
+
+permissions:
+  statuses: write
+
+jobs:
+  phpmetrics:
+    uses: ./.github/workflows/example-phpmetrics.yaml
+    with:
+      command: check
+  coverage:
+    uses: ./.github/workflows/example-coverage.yaml
+    with:
+      command: check
