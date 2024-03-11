@@ -37,14 +37,11 @@ final class CheckCommand extends Command
             ->addArgument('report-name', InputArgument::REQUIRED)
             ->addArgument('values', InputArgument::REQUIRED)
             ->addOption('configuration-file', mode: InputOption::VALUE_OPTIONAL)
-            ->addOption('github-token', mode: InputOption::VALUE_OPTIONAL)
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->configureGithub($input);
-
         $reportName = $this->readArgument($input, 'report-name');
 
         if ('' === $reportName) {
@@ -86,22 +83,6 @@ final class CheckCommand extends Command
         }
 
         return self::SUCCESS;
-    }
-
-    private function configureGithub(InputInterface $input): void
-    {
-        if (false === $input->hasOption('github-token')) {
-            return;
-        }
-
-
-        if (false === is_string(
-            $option = $input->getOption('github-token')
-        )) {
-            return;
-        }
-
-        $this->envVars->default('GITHUB_TOKEN', $option);
     }
 
     private function readArgument(InputInterface $input, string $argumentName): string

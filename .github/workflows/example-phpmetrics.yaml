@@ -1,0 +1,28 @@
+---
+on:
+  workflow_call:
+    inputs:
+      command:
+        type: string
+        required: true
+
+jobs:
+  outdated-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: latest
+          tools: phpmetrics/phpmetrics
+      - name: Compile
+        id: phpmetrics
+        run: |
+          mkdir phpmetrics -p
+          phpmetrics src --report-json=phpmetrics/report.json
+          echo "composer.json=$(cat phpmetrics/report.json | jq --raw-output '.composer.packages|map(select(.status=="outdated"))|length')" > $GITHUB_OUTPUT
+      - uses: PedroTroller/K-pi@v1.0.0
+        with:
+          report: outdated-dependencies
+          command: ${{ inputs.command }}
+          values: ${{ toJson(steps.phpmetrics.outputs) }}

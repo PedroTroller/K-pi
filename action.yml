@@ -1,6 +1,7 @@
 ---
-name: K-pi
+name: PedroTroller/K-pi
 description: Compile, verify and publish metrics
+icon: bar-chart
 inputs:
   command:
     required: true
@@ -37,5 +38,3 @@ runs:
     - ${{ inputs.values }}
     - '--configuration-file'
     - ${{ inputs.configuration_file }}
-    - '--github-token'
-    - ${{ inputs.github_token }}
