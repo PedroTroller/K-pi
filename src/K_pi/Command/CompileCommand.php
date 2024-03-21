@@ -13,6 +13,7 @@ use K_pi\EnvVars;
 use K_pi\Integrations;
 use K_pi\Storage;
 use K_pi\Storage\Factory;
+use K_pi\ValueNormalizer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -55,7 +56,7 @@ final class CompileCommand extends AbstractCommand
         $now = new \DateTimeImmutable();
 
         foreach ($values as $name => $value) {
-            $report->add($name, $now, $value);
+            $report->add($name, $now, ValueNormalizer::normalize($value, $reportConfiguration->getPrecision()));
         }
 
         foreach ($reportConfiguration->getColors() as $name => $color) {

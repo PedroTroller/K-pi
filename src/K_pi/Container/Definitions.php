@@ -6,6 +6,7 @@ namespace K_pi\Container;
 
 use Github;
 use Github\Api\GraphQL;
+use Github\AuthMethod;
 use K_pi\Command\Compile;
 use K_pi\Configuration\Extractor;
 use K_pi\Configuration\Extractor\StrategyExtractor;
@@ -103,7 +104,7 @@ final class Definitions
                     $container
                         ->get(K_pi\Integration\Github\Variables::class)
                         ->getToken(),
-                    Github\Client::AUTH_ACCESS_TOKEN,
+                    Github\AuthMethod::ACCESS_TOKEN,
                 );
 
                 return $client;
