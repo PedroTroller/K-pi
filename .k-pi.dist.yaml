@@ -23,3 +23,13 @@ reports:
     storage:
       github-discussion:
         url: https://github.com/PedroTroller/K-pi/discussions/14
+  class-bugs:
+    storage:
+      github-discussion:
+        url: https://github.com/PedroTroller/K-pi/discussions/22
+    check-reporter:
+      github-status:
+        states: lower-is-better
+        unit:
+          singular: ' bug'
+          plural: ' bugs'
