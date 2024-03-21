@@ -2,7 +2,7 @@
 reports:
   github-security:
     extra:
-      Total: total
+      total: Total
     colors:
       LOW: '#808080'
       MODERATE: '#FFFF00'

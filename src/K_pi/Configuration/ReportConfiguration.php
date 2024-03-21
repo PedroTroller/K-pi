@@ -191,7 +191,7 @@ final class ReportConfiguration
     }
 
     /**
-     * @return iterable<non-empty-string, Extra>
+     * @return iterable<Extra, non-empty-string>
      */
     public function getExtra(): iterable
     {
@@ -210,28 +210,21 @@ final class ReportConfiguration
 
         $empty = true;
 
-        foreach (get_object_vars($extra) as $name => $value) {
+        foreach (get_object_vars($extra) as $value => $name) {
             $empty = false;
 
-            if ('' === $name) {
+            if ('' === $value) {
                 throw new AtPathException(
                     sprintf('.reports.%s.extra', $this->reportName),
                     'property name must be non-empty string',
                 );
             }
 
-            if (false === \is_string($value)) {
-                throw new AtPathException(
-                    sprintf('.reports.%s.extra.%s', $this->reportName, $name),
-                    'must be a string',
-                );
-            }
+            $extra = Extra::tryFrom($value);
 
-            $enum = Extra::tryFrom($value);
-
-            if (null === $enum) {
+            if (null === $extra) {
                 throw new AtPathException(
-                    sprintf('.reports.%s.extra.%s', $this->reportName, $name),
+                    sprintf('.reports.%s.extra.%s', $this->reportName, $value),
                     sprintf(
                         'extra "%s" does not exists, must be %s',
                         $value,
@@ -248,7 +241,14 @@ final class ReportConfiguration
                 );
             }
 
-            yield $name => $enum;
+            if (false === \is_string($name) || '' === $name) {
+                throw new AtPathException(
+                    sprintf('.reports.%s.extra.%s', $this->reportName, $value),
+                    'must be a non-empty-string',
+                );
+            }
+
+            yield $extra => $name;
         }
 
         if ($empty) {
