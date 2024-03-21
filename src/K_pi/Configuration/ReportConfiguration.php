@@ -17,6 +17,27 @@ final class ReportConfiguration
     ) {}
 
     /**
+     * @return int<0, max>
+     */
+    public function getPrecision(): int
+    {
+        if (false === property_exists($this->configuration, 'precision')) {
+            return 2;
+        }
+
+        $precision = $this->configuration->precision;
+
+        if (false === \is_int($precision) || 0 > $precision) {
+            throw new AtPathException(
+                sprintf('.reports.%s.precision', $this->reportName),
+                'zero or positive integer expected',
+            );
+        }
+
+        return $precision;
+    }
+
+    /**
      * @return array{StorageIntegration, mixed}
      */
     public function getStorageConfiguration(): array

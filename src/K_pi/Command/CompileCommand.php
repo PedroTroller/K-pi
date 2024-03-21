@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Exception;
 use K_pi\Configuration\Extractor;
 use K_pi\Storage;
+use K_pi\ValueNormalizer;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -57,7 +58,14 @@ final class CompileCommand extends AbstractCommand
         $now    = new DateTimeImmutable();
 
         foreach ($values as $name => $value) {
-            $report->add($name, $now, $value);
+            $report->add(
+                $name,
+                $now,
+                ValueNormalizer::normalize(
+                    $value,
+                    $reportConfiguration->getPrecision(),
+                ),
+            );
         }
 
         foreach ($reportConfiguration->getColors() as $name => $color) {
