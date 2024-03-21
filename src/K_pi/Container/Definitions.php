@@ -71,19 +71,17 @@ final class Definitions
         $container->define(
             K_pi\Command\CompileCommand::class,
             fn (Container $container) => new K_pi\Command\CompileCommand(
-                $container->get(K_pi\Storage\Integrations::class),
-                $container->get(K_pi\EnvVars::class),
                 $container->get(K_pi\Configuration\Extractor::class),
+                $container->get(K_pi\Storage\Integrations::class),
             ),
         );
 
         $container->define(
             K_pi\Command\CheckCommand::class,
             fn (Container $container) => new K_pi\Command\CheckCommand(
-                $container->get(K_pi\Storage\Integrations::class),
                 $container->get(K_pi\CheckReporter\Integrations::class),
-                $container->get(K_pi\EnvVars::class),
                 $container->get(K_pi\Configuration\Extractor::class),
+                $container->get(K_pi\Storage\Integrations::class),
             ),
         );
     }

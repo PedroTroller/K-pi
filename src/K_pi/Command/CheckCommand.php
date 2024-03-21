@@ -19,15 +19,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class CheckCommand extends Command
+final class CheckCommand extends AbstractCommand
 {
     public function __construct(
-        private readonly Storage\Integrations $storageIntegrations,
         private readonly CheckReporter\Integrations $checkReporterIntegrations,
-        private readonly EnvVars $envVars,
-        private Extractor $extractor
+        private readonly Extractor $extractor,
+        Storage\Integrations $storageIntegrations,
     ) {
-        parent::__construct();
+        parent::__construct($storageIntegrations);
     }
 
     protected function configure(): void
@@ -43,11 +42,6 @@ final class CheckCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $reportName = $this->readArgument($input, 'report-name');
-
-        if ('' === $reportName) {
-            throw new \Exception('"report-name" argument can\'t be an empty string.');
-        }
-
         $configuration = $this->extractor->extract($input);
 
         if (null === $configuration) {
@@ -85,52 +79,4 @@ final class CheckCommand extends Command
         return self::SUCCESS;
     }
 
-    private function readArgument(InputInterface $input, string $argumentName): string
-    {
-        $argument = $input->getArgument($argumentName);
-
-        Assert::that($argument)->string();
-
-        return $argument;
-    }
-
-    private function getStorage(string $reportName, StorageIntegration $integration, mixed $configuration): Storage
-    {
-        return $this->storageIntegrations->get($integration)->build($reportName, $configuration);
-    }
-
-    /**
-     * @return array<non-empty-string, int|float>
-     */
-    private function getValues(InputInterface $input): array
-    {
-        $values = json_decode($this->readArgument($input, 'values'), true, flags: JSON_THROW_ON_ERROR);
-
-        Assert::that($values)->isArray();
-        Assert::that(array_keys($values))->all()->string()->notEmpty();
-
-        return array_map(
-            function ($value): int|float {
-                if (is_int($value) || is_float($value)) {
-                    return $value;
-                }
-
-                if (is_string($value) && is_numeric($value)) {
-                    return (float) $value;
-                }
-
-                throw new \Exception(
-                    sprintf(
-                        "%s is not an integer, a float or a numeric string.",
-                        match(gettype($value)) {
-                            'string' => sprintf('"%s"', addslashes($value)),
-                            'boolean' => $value ? 'true' : 'false',
-                            default => gettype($value),
-                        }
-                    )
-                );
-            },
-            $values,
-        );
-    }
 }
