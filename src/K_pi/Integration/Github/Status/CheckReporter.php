@@ -10,6 +10,7 @@ use K_pi\Data\Diff;
 use K_pi\Data\Github\StatusState;
 use K_pi\EnvVars;
 use K_pi\Integration\Github;
+use K_pi\Integration\Github\Status\CheckReporter\Configuration;
 use K_pi\Integration\Github\Variables;
 
 final class CheckReporter implements CheckReporterInterface

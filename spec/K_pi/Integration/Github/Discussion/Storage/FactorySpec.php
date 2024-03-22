@@ -3,7 +3,7 @@
 namespace spec\K_pi\Integration\Github\Discussion\Storage;
 
 use K_pi\Integration\Github;
-use K_pi\Integration\Github\Discussion\Configuration;
+use K_pi\Integration\Github\Discussion\Storage\Configuration;
 use K_pi\Integration\Github\Discussion\Storage;
 use K_pi\Integration\Github\Discussion\Storage\Factory;
 use PhpSpec\ObjectBehavior;
@@ -26,8 +26,8 @@ class FactorySpec extends ObjectBehavior
         $configuration = new stdClass;
         $configuration->url = 'https://github.com/KnpLabs/K-pi/discussions/42';
 
-        $this->build('test', $configuration)->shouldBeLike(
-            new Storage(new Configuration('test', $configuration), $github->getWrappedObject())
+        $this->build('report-name', $configuration)->shouldBeLike(
+            new Storage(new Configuration($configuration, 'report-name'), $github->getWrappedObject())
         );
     }
 }

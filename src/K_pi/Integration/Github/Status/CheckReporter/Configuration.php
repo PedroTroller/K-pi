@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace K_pi\Integration\Github\Status;
+namespace K_pi\Integration\Github\Status\CheckReporter;
 
 use K_pi\Configuration\Exception\AtPathException;
 use K_pi\Data\CheckReporterIntegration;
@@ -100,8 +100,8 @@ final class Configuration
     {
         if (false === property_exists($configuration, 'states')) {
             return [
-                StatusState::PENDING,
-                StatusState::PENDING,
+                StatusState::SUCCESS,
+                StatusState::SUCCESS,
             ];
         }
 

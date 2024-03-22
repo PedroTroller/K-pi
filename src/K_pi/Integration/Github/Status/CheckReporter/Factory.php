@@ -9,7 +9,6 @@ use K_pi\CheckReporter as CheckReporterInterface;
 use K_pi\EnvVars;
 use K_pi\Integration\Github;
 use K_pi\Integration\Github\Status\CheckReporter;
-use K_pi\Integration\Github\Status\Configuration;
 use K_pi\Integration\Github\Variables;
 
 final class Factory implements FactoryInterface
