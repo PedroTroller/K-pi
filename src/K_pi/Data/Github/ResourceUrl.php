@@ -37,34 +37,21 @@ final class ResourceUrl
             throw new InvalidArgumentException('Invalid Github resource url.');
         }
 
+        /**
+         * @var non-empty-string $owner
+         * @var non-empty-string $repository
+         * @var non-empty-string $type
+         * @var numeric-string $number
+         */
         [, $owner, $repository, $type, $number] = $matches;
 
-        if ('' === $owner) {
-            throw new InvalidArgumentException('Github resource owner is empty.');
-        }
-
         $this->owner = $owner;
-
-        if ('' === $repository) {
-            throw new InvalidArgumentException('Github resource repository is empty.');
-        }
-
         $this->repository = $repository;
-
-        if ('' === $type) {
-            throw new InvalidArgumentException('Github resource type is empty.');
-        }
-
         $this->type = $type;
-
-        if (false === is_numeric($number)) {
-            throw new InvalidArgumentException('Github resource number is not a positive integer.');
-        }
-
         $number = (int) $number;
 
         if (0 >= $number) {
-            throw new InvalidArgumentException('Github resource number is not a positive integer.');
+            throw new InvalidArgumentException('Invalid Github resource url.');
         }
 
         $this->number = $number;

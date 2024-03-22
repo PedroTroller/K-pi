@@ -62,7 +62,7 @@ class ConfigurationSpec extends ObjectBehavior
                 'persist' => true,
                 'report' => true,
             ],
-            new AtPathException('.reports.test.storage.github-discussion.url', 'Github resource number is not a positive integer.'),
+            new AtPathException('.reports.test.storage.github-discussion.url', 'Invalid Github resource url.'),
         ];
 
         yield [
@@ -71,7 +71,7 @@ class ConfigurationSpec extends ObjectBehavior
                 'persist' => true,
                 'report' => true,
             ],
-            new Exception('At path .reports.test.storage.github-discussion.url: Invalid Github resource url.')
+            new AtPathException('.reports.test.storage.github-discussion.url', 'Invalid Github resource url.'),
         ];
 
         yield [
