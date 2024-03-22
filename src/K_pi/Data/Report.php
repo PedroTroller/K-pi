@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace K_pi\Data;
 
+use DateTimeImmutable;
 use IteratorAggregate;
 use Traversable;
 
@@ -30,8 +31,11 @@ final class Report implements IteratorAggregate
     /**
      * @param non-empty-string $name
      */
-    public function add(string $name, \DateTimeImmutable $date, int|float $value): void
-    {
+    public function add(
+        string $name,
+        DateTimeImmutable $date,
+        float|int $value,
+    ): void {
         $index = $date->format('Y-m-d');
 
         $this->datasets[$name][$index] = $value;
@@ -68,6 +72,7 @@ final class Report implements IteratorAggregate
 
     /**
      * @param non-empty-string $name
+     *
      * @return ?non-empty-string
      */
     public function getColor(string $name): ?string
@@ -78,11 +83,11 @@ final class Report implements IteratorAggregate
     /**
      * @param non-empty-string $name
      *
-     * @return null|int|float
+     * @return null|float|int
      */
     public function last(string $name): mixed
     {
-        if (false === array_key_exists($name, $this->datasets)) {
+        if (false === \array_key_exists($name, $this->datasets)) {
             return null;
         }
 
@@ -90,17 +95,17 @@ final class Report implements IteratorAggregate
     }
 
     /**
-     * @return array<non-empty-string, int|float>
+     * @return array<non-empty-string, float|int>
      */
     public function getExtra(Extra $extra): array
     {
-        return match($extra) {
-            Extra::TOTAL => $this->total()
+        return match ($extra) {
+            Extra::TOTAL => $this->total(),
         };
     }
 
     /**
-     * @return array<non-empty-string, int|float>
+     * @return array<non-empty-string, float|int>
      */
     private function total(): array
     {
@@ -120,9 +125,6 @@ final class Report implements IteratorAggregate
             $current = $totals[$date] = array_merge($current, $total);
         }
 
-        return array_map(
-            array_sum(...),
-            $totals,
-        );
+        return array_map(array_sum(...), $totals);
     }
 }

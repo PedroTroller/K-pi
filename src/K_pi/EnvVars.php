@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace K_pi;
 
+use Exception;
+
 final class EnvVars
 {
     /**
@@ -14,28 +16,12 @@ final class EnvVars
     /**
      * @param non-empty-string $name
      */
-    private function read(string $name): ?string
-    {
-        if (is_string($env = getenv($name))) {
-            return $env;
-        }
-
-        if (array_key_exists($name, $this->defaults)) {
-            return $this->defaults[$name];
-        }
-
-        return null;
-    }
-
-    /**
-     * @param non-empty-string $name
-     */
     public function get(string $name): string
     {
         $env = $this->read($name);
 
         if (null === $env) {
-            throw new \Exception("$name env variable not found.");
+            throw new Exception("{$name} env variable not found.");
         }
 
         return $env;
@@ -55,5 +41,21 @@ final class EnvVars
     public function default(string $name, string $env): void
     {
         $this->defaults[$name] = $env;
+    }
+
+    /**
+     * @param non-empty-string $name
+     */
+    private function read(string $name): ?string
+    {
+        if (\is_string($env = getenv($name))) {
+            return $env;
+        }
+
+        if (\array_key_exists($name, $this->defaults)) {
+            return $this->defaults[$name];
+        }
+
+        return null;
     }
 }

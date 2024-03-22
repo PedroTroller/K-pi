@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace K_pi\Integration\Github\Discussion;
 
 use DateTimeImmutable;
+use DateTimeZone;
+use Exception;
 use K_pi\Configuration\ReportConfiguration;
 use K_pi\Data\Report;
 use K_pi\Integration\Github;
@@ -25,9 +27,8 @@ final class Storage implements StorageInterface
 {
     public function __construct(
         private readonly Configuration $configuration,
-        private readonly Github $github
-    ) {
-    }
+        private readonly Github $github,
+    ) {}
 
     public function read(): Report
     {
@@ -44,8 +45,10 @@ final class Storage implements StorageInterface
         return $this->contentToReport($discussion['body']);
     }
 
-    public function write(Report $report, ReportConfiguration $configuration): void
-    {
+    public function write(
+        Report $report,
+        ReportConfiguration $configuration,
+    ): void {
         $discussion = $this->github->readDiscussion(
             owner: $this->configuration->discussion->owner,
             repository: $this->configuration->discussion->repository,
@@ -64,13 +67,13 @@ final class Storage implements StorageInterface
         $extract = [];
 
         foreach (explode("\n", $content) as $line) {
-            if (trim($line, " \n\r") === '```json K-pi') {
+            if ('```json K-pi' === trim($line, " \n\r")) {
                 $inJson = true;
 
                 continue;
             }
 
-            if (trim($line, " \n\r") === '```') {
+            if ('```' === trim($line, " \n\r")) {
                 $inJson = false;
 
                 continue;
@@ -81,10 +84,9 @@ final class Storage implements StorageInterface
             }
         }
 
-        if ($extract === []) {
+        if ([] === $extract) {
             return new Report();
         }
-
 
         try {
             $export = json_decode(
@@ -93,14 +95,14 @@ final class Storage implements StorageInterface
                 flags: JSON_THROW_ON_ERROR,
             );
 
-            if (false === is_array($export)) {
+            if (false === \is_array($export)) {
                 return new Report();
             }
 
             $data = [];
 
             foreach ($export as $name => $datasetAndColor) {
-                if (false === is_string($name)) {
+                if (false === \is_string($name)) {
                     continue;
                 }
 
@@ -108,39 +110,44 @@ final class Storage implements StorageInterface
                     continue;
                 }
 
-                if (false === is_array($datasetAndColor)) {
+                if (false === \is_array($datasetAndColor)) {
                     continue;
                 }
 
                 $dataset = $datasetAndColor['dataset'] ?? [];
 
-                if (false === is_array($dataset) || [] === $dataset) {
+                if (false === \is_array($dataset) || [] === $dataset) {
                     continue;
                 }
 
                 foreach ($dataset as $date => $value) {
-                    if (false === is_int($value) && false === is_float($value)) {
+                    if (
+                        false === \is_int($value)
+                        && false === \is_float($value)
+                    ) {
                         continue;
                     }
 
-                    if (false === is_string($date) || '' === $date) {
+                    if (false === \is_string($date) || '' === $date) {
                         continue;
                     }
 
                     $data[$name]['dataset'][$date] = $value;
-                    $data[$name]['color'] = $datasetAndColor['color'] ?? null;
+                    $data[$name]['color']          = $datasetAndColor['color'] ?? null;
                 }
             }
 
             return $this->dataToReport($data);
-        } catch(\Exception) {
+        } catch (Exception) {
             return new Report();
         }
     }
 
-    private function reportToContent(Report $report, ReportConfiguration $configuration): string
-    {
-        $data = null;
+    private function reportToContent(
+        Report $report,
+        ReportConfiguration $configuration,
+    ): string {
+        $data  = null;
         $chart = null;
 
         if ($this->configuration->persist) {
@@ -153,42 +160,52 @@ final class Storage implements StorageInterface
 
         if (null === $data && null !== $chart) {
             $template = <<<'MKD'
-            ![](%s)
-            MKD;
+                ![](%s)
+                MKD;
 
             return sprintf($template, $chart->getShortUrl());
         }
 
         if (null !== $data && null === $chart) {
             $template = <<<'MKD'
-            ```json K-pi
-            %s
-            ```
-            MKD;
+                ```json K-pi
+                %s
+                ```
+                MKD;
 
             return sprintf(
                 $template,
-                json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+                json_encode(
+                    $data,
+                    JSON_PRETTY_PRINT |
+                        JSON_UNESCAPED_SLASHES |
+                        JSON_THROW_ON_ERROR,
+                ),
             );
         }
 
         if (null !== $data && null !== $chart) {
             $template = <<<'MKD'
-            ![](%s)
+                ![](%s)
 
-            <details>
-              <summary>Data (do not edit)</summary>
+                <details>
+                  <summary>Data (do not edit)</summary>
 
-              ```json K-pi
-            %s
-              ```
-            </details>
-            MKD;
+                  ```json K-pi
+                %s
+                  ```
+                </details>
+                MKD;
 
             return sprintf(
                 $template,
                 $chart->getShortUrl(),
-                json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+                json_encode(
+                    $data,
+                    JSON_PRETTY_PRINT |
+                        JSON_UNESCAPED_SLASHES |
+                        JSON_THROW_ON_ERROR,
+                ),
             );
         }
 
@@ -203,7 +220,7 @@ final class Storage implements StorageInterface
         $report = new Report();
 
         foreach ($data as $name => $datasetAndColor) {
-            $color = $datasetAndColor['color'];
+            $color   = $datasetAndColor['color'];
             $dataset = $datasetAndColor['dataset'];
 
             if (null !== $color) {
@@ -227,7 +244,7 @@ final class Storage implements StorageInterface
 
         foreach ($report as $name => $dataset) {
             $data[$name] = [
-                'color' => $report->getColor($name),
+                'color'   => $report->getColor($name),
                 'dataset' => $dataset,
             ];
         }
@@ -235,9 +252,13 @@ final class Storage implements StorageInterface
         return $data;
     }
 
-    private function reportToChart(Report $report, ReportConfiguration $configuration): QuickChart
-    {
-        $now = (new DateTimeImmutable(timezone: new \DateTimeZone('Europe/Paris')))->format('Y-m-d');
+    private function reportToChart(
+        Report $report,
+        ReportConfiguration $configuration,
+    ): QuickChart {
+        $now = (new DateTimeImmutable(
+            timezone: new DateTimeZone('Europe/Paris'),
+        ))->format('Y-m-d');
 
         $config = [
             'type'    => 'line',
@@ -261,8 +282,8 @@ final class Storage implements StorageInterface
                 ],
             ],
             'data' => [
-                'datasets' => []
-            ]
+                'datasets' => [],
+            ],
         ];
 
         $datasets = [...$report];
@@ -277,12 +298,8 @@ final class Storage implements StorageInterface
         }
 
         foreach ($datasets as $name => $dataset) {
-            if (false !== $value = end($dataset)) {
-                $dataset = array_merge(
-                    $dataset,
-                    [ $now => $value ],
-                    $dataset,
-                );
+            if (false !== ($value = end($dataset))) {
+                $dataset = array_merge($dataset, [$now => $value], $dataset);
             }
 
             $color = $report->getColor($name);
@@ -290,18 +307,21 @@ final class Storage implements StorageInterface
             $config['data']['datasets'][] = array_merge(
                 [
                     'label' => $name,
-                    'fill' => false,
-                    'data' => array_map(
-                        fn (string $date, int|float $value) => ['x' => $date, 'y' => $value],
+                    'fill'  => false,
+                    'data'  => array_map(
+                        static fn (string $date, float|int $value) => [
+                            'x' => $date,
+                            'y' => $value,
+                        ],
                         array_keys($dataset),
                         array_values($dataset),
                     ),
                 ],
-                $color === null ? [] : ['borderColor' => $color]
+                null === $color ? [] : ['borderColor' => $color],
             );
         }
 
-        $chart = new \QuickChart([
+        $chart = new QuickChart([
             'width'   => 870,
             'height'  => 600,
             'version' => '2',

@@ -16,13 +16,11 @@ final class Variables
     ];
 
     private const VARS_PULL_REQUEST = [
-        'GITHUB_PULL_REQUEST',       // CircleCI
+        'GITHUB_PULL_REQUEST', // CircleCI
         'INPUT_GITHUB_PULL_REQUEST', // Github Actions
     ];
 
-    public function __construct(private readonly EnvVars $envVars)
-    {
-    }
+    public function __construct(private readonly EnvVars $envVars) {}
 
     public function getToken(): string
     {
@@ -39,7 +37,7 @@ final class Variables
         );
 
         if ('pull' !== $pullRequestUrl->type) {
-            throw new Exception("Not a pull-request url");
+            throw new Exception('Not a pull-request url');
         }
 
         return $pullRequestUrl;
@@ -58,11 +56,11 @@ final class Variables
             return $this->envVars->get($variable);
         }
 
-        throw new \Exception(
+        throw new Exception(
             sprintf(
                 'None of the following environment variables were found: %s',
-                join(',', $variables),
-            )
+                implode(',', $variables),
+            ),
         );
     }
 }

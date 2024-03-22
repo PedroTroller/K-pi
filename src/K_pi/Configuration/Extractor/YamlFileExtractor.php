@@ -13,8 +13,11 @@ use Symfony\Component\Yaml\Yaml;
 final class YamlFileExtractor implements Extractor
 {
     private const EXTENSIONS = [
+        '.dist.json',
         '.dist.yaml',
         '.dist.yml',
+        '.json',
+        '.json.dist',
         '.yaml',
         '.yaml.dist',
         '.yml',
@@ -27,7 +30,9 @@ final class YamlFileExtractor implements Extractor
             return null;
         }
 
-        if (false === is_string($configurationFilePath = $input->getOption('configuration-file'))) {
+        $configurationFilePath = $input->getOption('configuration-file');
+
+        if (false === \is_string($configurationFilePath)) {
             return null;
         }
 
@@ -47,16 +52,16 @@ final class YamlFileExtractor implements Extractor
 
         $yaml = Yaml::parseFile($configurationFilePath);
         $json = json_decode(
-            json_encode(
-                $yaml,
-                flags: JSON_THROW_ON_ERROR,
-            ),
+            json_encode($yaml, flags: JSON_THROW_ON_ERROR),
             false,
             flags: JSON_THROW_ON_ERROR,
         );
 
-        if (false === is_object($json)) {
-            throw new AtPathException('.', 'configuration root must be an object');
+        if (false === \is_object($json)) {
+            throw new AtPathException(
+                '.',
+                'configuration root must be an object',
+            );
         }
 
         return new Configuration($json);

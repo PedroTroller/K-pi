@@ -11,6 +11,8 @@
     },
     "require-dev": {
         "friends-of-phpspec/phpspec-code-coverage": "6.3.*",
+        "friendsofphp/php-cs-fixer": "3.52.*",
+        "pedrotroller/php-cs-custom-fixer": "2.33.*",
         "phpspec/phpspec": "7.5.*"
     },
     "autoload": {

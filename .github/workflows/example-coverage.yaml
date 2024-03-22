@@ -13,7 +13,7 @@ jobs:
       COMPOSE_FILE: tests/compose.yaml
     steps:
       - uses: actions/checkout@v4
-      - run: docker compose run --rm --build --entrypoint=vendor/bin/phpspec php --config=phpspec.yaml.dist run --no-interaction
+      - run: make phpspec
       - name: XPath
         id: xpath
         run: |

@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace K_pi\Command;
 
-use Assert\Assert;
+use Exception;
+use K_pi\CheckReporter;
 use K_pi\Configuration\Extractor;
 use K_pi\Data\Diff;
-use K_pi\Data\Integration;
-use K_pi\Data\StorageIntegration;
-use K_pi\EnvVars;
-use K_pi\Integrations;
 use K_pi\Storage;
-use K_pi\CheckReporter;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -31,30 +26,39 @@ final class CheckCommand extends AbstractCommand
 
     protected function configure(): void
     {
-        $this
-            ->setName('check')
+        $this->setName('check')
             ->addArgument('report-name', InputArgument::REQUIRED)
             ->addArgument('values', InputArgument::REQUIRED)
-            ->addOption('configuration-file', mode: InputOption::VALUE_OPTIONAL)
+            ->addOption(
+                'configuration-file',
+                mode: InputOption::VALUE_OPTIONAL,
+            )
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $reportName = $this->readArgument($input, 'report-name');
+    protected function execute(
+        InputInterface $input,
+        OutputInterface $output,
+    ): int {
+        $reportName    = $this->readArgument($input, 'report-name');
         $configuration = $this->extractor->extract($input);
 
         if (null === $configuration) {
-            throw new \Exception("Unable to read configuration, no configuration file found.");
+            throw new Exception(
+                'Unable to read configuration, no configuration file found.',
+            );
         }
 
         $reportConfiguration = $configuration->get($reportName);
-        $storage = $this->getStorage($reportName, ...$reportConfiguration->getStorageConfiguration());
+        $storage             = $this->getStorage(
+            $reportName,
+            ...$reportConfiguration->getStorageConfiguration(),
+        );
         $report = $storage->read();
         $values = $this->getValues($input);
 
         $notifications = array_map(
-            fn (int|float $value, string $name): Diff => new Diff(
+            static fn (float|int $value, string $name): Diff => new Diff(
                 name: $name,
                 from: $report->last($name) ?? 0,
                 to: $value,
@@ -67,9 +71,10 @@ final class CheckCommand extends AbstractCommand
             return self::SUCCESS;
         }
 
-        foreach ($reportConfiguration->getCheckReportersConfiguration() as $checkReporterIntegration => $checkReporterConfiguration) {
-            $this
-                ->checkReporterIntegrations
+        foreach (
+            $reportConfiguration->getCheckReportersConfiguration() as $checkReporterIntegration => $checkReporterConfiguration
+        ) {
+            $this->checkReporterIntegrations
                 ->get($checkReporterIntegration)
                 ->build($checkReporterConfiguration, $reportName)
                 ->send(...$notifications)
@@ -78,5 +83,4 @@ final class CheckCommand extends AbstractCommand
 
         return self::SUCCESS;
     }
-
 }

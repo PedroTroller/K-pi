@@ -11,5 +11,8 @@ interface Storage
 {
     public function read(): Report;
 
-    public function write(Report $report, ReportConfiguration $configuration): void;
+    public function write(
+        Report $report,
+        ReportConfiguration $configuration,
+    ): void;
 }

@@ -1,1 +1,7 @@
+/.php-cs-fixer.cache
+/.prettier.cache
+
 /vendor/
+/coverage/
+/phpmetrics/
+/tests/
