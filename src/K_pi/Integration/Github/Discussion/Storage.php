@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use K_pi\Configuration\ReportConfiguration;
 use K_pi\Data\Report;
 use K_pi\Integration\Github;
+use K_pi\Integration\Github\Discussion\Storage\Configuration;
 use K_pi\Storage as StorageInterface;
 use QuickChart;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace K_pi\Integration\Github\Discussion;
+namespace K_pi\Integration\Github\Discussion\Storage;
 
 use Exception;
 use K_pi\Configuration\Exception\AtPathException;
@@ -19,8 +19,10 @@ final class Configuration
 
     public readonly bool $persist;
 
-    public function __construct(private readonly string $reportName, mixed $configuration)
-    {
+    public function __construct(
+        mixed $configuration,
+        private readonly string $reportName,
+    ) {
         if (false === is_object($configuration)) {
             throw new AtPathException(
                 sprintf('.reports.%s.storage.%s', $this->reportName, StorageIntegration::GITHUB_DISCUSSION->value),

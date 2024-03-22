@@ -6,7 +6,6 @@ namespace K_pi\Integration\Github\Discussion\Storage;
 
 use Assert\Assert;
 use K_pi\Integration\Github;
-use K_pi\Integration\Github\Discussion\Configuration;
 use K_pi\Integration\Github\Discussion\Storage;
 use K_pi\Storage as StorageInterface;
 use K_pi\Storage\Factory as FactoryInterface;
@@ -22,8 +21,8 @@ final class Factory implements FactoryInterface
     {
         return new Storage(
             new Configuration(
-                $reportName,
                 $configuration,
+                $reportName,
             ),
             $this->github,
         );
