@@ -23,6 +23,12 @@ reports:
     storage:
       github-discussion:
         url: https://github.com/PedroTroller/K-pi/discussions/14
+    check-reporter:
+      github-status:
+        states: lower-is-better
+        unit:
+          singular: ' dependency'
+          plural: ' dependencies'
   class-bugs:
     storage:
       github-discussion:
