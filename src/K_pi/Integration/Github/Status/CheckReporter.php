@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace K_pi\Integration\Github\Status;
 
-use Exception;
 use K_pi\CheckReporter as CheckReporterInterface;
 use K_pi\Data\Diff;
 use K_pi\Data\Github\StatusState;
-use K_pi\EnvVars;
 use K_pi\Integration\Github;
 use K_pi\Integration\Github\Status\CheckReporter\Configuration;
 use K_pi\Integration\Github\Variables;
 
 final class CheckReporter implements CheckReporterInterface
 {
-    public function __construct(private readonly Github $github, private readonly Variables $variables, private readonly Configuration $configuration)
-    {
-    }
+    public function __construct(
+        private readonly Github $github,
+        private readonly Variables $variables,
+        private readonly Configuration $configuration,
+    ) {}
 
     public function send(Diff ...$notifications): void
     {
@@ -47,13 +47,15 @@ final class CheckReporter implements CheckReporterInterface
                 repository: $pullRequest->repository,
                 pullRequest: $pullRequest->number,
                 state: $this->getState($notification->diff),
-                context: $this->configuration->reportName . ': ' . $notification->name,
+                context: $this->configuration->reportName .
+                    ': ' .
+                    $notification->name,
                 description: $description,
             );
         }
     }
 
-    private function getState(int|float $value): StatusState
+    private function getState(float|int $value): StatusState
     {
         if ($value >= 0) {
             return $this->configuration->onHigher;
@@ -62,7 +64,7 @@ final class CheckReporter implements CheckReporterInterface
         return $this->configuration->onLower;
     }
 
-    private function getIndicator(int|float $value): ?string
+    private function getIndicator(float|int $value): ?string
     {
         if ($value > 0) {
             return '⬈';
@@ -75,7 +77,7 @@ final class CheckReporter implements CheckReporterInterface
         return null;
     }
 
-    private function getUnit(int|float $value): ?string
+    private function getUnit(float|int $value): ?string
     {
         if ($value >= 2) {
             return $this->configuration->pluralUnit;
@@ -88,7 +90,7 @@ final class CheckReporter implements CheckReporterInterface
         return $this->configuration->singularUnit;
     }
 
-    private function getSign(int|float $value): ?string
+    private function getSign(float|int $value): ?string
     {
         if ($value >= 0) {
             return '+';

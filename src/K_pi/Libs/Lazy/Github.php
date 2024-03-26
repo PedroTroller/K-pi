@@ -21,10 +21,8 @@ final class Github extends Lazy implements K_pi\Integration\Github
         return $this->load()->readDiscussion($owner, $repository, $number);
     }
 
-    public function writeDiscussion(
-        string $id,
-        string $body,
-    ): void {
+    public function writeDiscussion(string $id, string $body): void
+    {
         $this->load()->writeDiscussion($id, $body);
     }
 
@@ -34,7 +32,12 @@ final class Github extends Lazy implements K_pi\Integration\Github
         int $pullRequest,
         string $checkName,
     ): void {
-        $this->load()->createCheckRun($owner, $repository, $pullRequest, $checkName);
+        $this->load()->createCheckRun(
+            $owner,
+            $repository,
+            $pullRequest,
+            $checkName,
+        );
     }
 
     public function createStatus(
@@ -45,6 +48,13 @@ final class Github extends Lazy implements K_pi\Integration\Github
         string $context,
         string $description,
     ): void {
-        $this->load()->createStatus($owner, $repository, $pullRequest, $state, $context, $description);
+        $this->load()->createStatus(
+            $owner,
+            $repository,
+            $pullRequest,
+            $state,
+            $context,
+            $description,
+        );
     }
 }

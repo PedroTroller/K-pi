@@ -8,6 +8,7 @@ use K_pi\Configuration\Exception\AtPathException;
 use K_pi\Data\Github\StatusState;
 use K_pi\Integration\Github\Status\CheckReporter\Configuration;
 use PhpSpec\ObjectBehavior;
+use stdClass;
 
 final class ConfigurationSpec extends ObjectBehavior
 {
@@ -53,12 +54,12 @@ final class ConfigurationSpec extends ObjectBehavior
 
     function it_can_customize_states($configuration)
     {
-        $onLower = 'on-lower';
+        $onLower  = 'on-lower';
         $onHigher = 'on-higher';
 
-        $configuration->states = new \stdClass;
-        $configuration->states->$onLower = StatusState::FAILURE->value;
-        $configuration->states->$onHigher = StatusState::SUCCESS->value;
+        $configuration->states              = new stdClass();
+        $configuration->states->{$onLower}  = StatusState::FAILURE->value;
+        $configuration->states->{$onHigher} = StatusState::SUCCESS->value;
 
         $this->onLower->shouldBe(StatusState::FAILURE);
         $this->onHigher->shouldBe(StatusState::SUCCESS);
@@ -80,9 +81,9 @@ final class ConfigurationSpec extends ObjectBehavior
 
     function it_has_complexe_unit($configuration)
     {
-        $configuration->unit = new \stdClass;
+        $configuration->unit           = new stdClass();
         $configuration->unit->singular = ' error';
-        $configuration->unit->plural = ' errors';
+        $configuration->unit->plural   = ' errors';
 
         $this->singularUnit->shouldBe(' error');
         $this->pluralUnit->shouldBe(' errors');
@@ -108,89 +109,89 @@ final class ConfigurationSpec extends ObjectBehavior
     private function invalidDataProvider()
     {
         yield new AtPathException(
-            ".reports.report-name.check-reporter.github-status",
+            '.reports.report-name.check-reporter.github-status',
             'must be null or an object',
         ) => 1;
 
         yield new AtPathException(
-            ".reports.report-name.check-reporter.github-status.states",
-            'must be "higher-is-better" or "lower-is-better" or an object with "on-lower" and "on-higher" properties'
+            '.reports.report-name.check-reporter.github-status.states',
+            'must be "higher-is-better" or "lower-is-better" or an object with "on-lower" and "on-higher" properties',
         ) => [
-            'states' => 'unknown'
+            'states' => 'unknown',
         ];
 
         yield new AtPathException(
-            ".reports.report-name.check-reporter.github-status.states",
-            'must be "higher-is-better" or "lower-is-better" or an object with "on-lower" and "on-higher" properties'
+            '.reports.report-name.check-reporter.github-status.states',
+            'must be "higher-is-better" or "lower-is-better" or an object with "on-lower" and "on-higher" properties',
         ) => [
-            'states' => null
+            'states' => null,
         ];
 
         yield new AtPathException(
-            ".reports.report-name.check-reporter.github-status.states",
-            'must be "higher-is-better" or "lower-is-better" or an object with "on-lower" and "on-higher" properties'
-        ) => [
-            'states' => [
-                'foo' => 'bar'
-            ]
-        ];
-
-        yield new AtPathException(
-            ".reports.report-name.check-reporter.github-status.states.on-lower",
-            'must be "error" or "failure" or "pending" or "success"'
+            '.reports.report-name.check-reporter.github-status.states',
+            'must be "higher-is-better" or "lower-is-better" or an object with "on-lower" and "on-higher" properties',
         ) => [
             'states' => [
-                'on-lower' => 'foo',
-                'on-higher' => 'success'
-            ]
+                'foo' => 'bar',
+            ],
         ];
 
         yield new AtPathException(
-            ".reports.report-name.check-reporter.github-status.states.on-higher",
-            'must be "error" or "failure" or "pending" or "success"'
+            '.reports.report-name.check-reporter.github-status.states.on-lower',
+            'must be "error" or "failure" or "pending" or "success"',
         ) => [
             'states' => [
-                'on-lower' => 'success',
-                'on-higher' => 'foo'
-            ]
+                'on-lower'  => 'foo',
+                'on-higher' => 'success',
+            ],
         ];
 
         yield new AtPathException(
-            ".reports.report-name.check-reporter.github-status.unit",
+            '.reports.report-name.check-reporter.github-status.states.on-higher',
+            'must be "error" or "failure" or "pending" or "success"',
+        ) => [
+            'states' => [
+                'on-lower'  => 'success',
+                'on-higher' => 'foo',
+            ],
+        ];
+
+        yield new AtPathException(
+            '.reports.report-name.check-reporter.github-status.unit',
             'must be a string or an object with "singular" and "plural" properties',
         ) => [
             'unit' => [
                 'singular' => ' error',
-            ]
+            ],
         ];
 
         yield new AtPathException(
-            ".reports.report-name.check-reporter.github-status.unit",
+            '.reports.report-name.check-reporter.github-status.unit',
             'must be a string or an object with "singular" and "plural" properties',
         ) => [
             'unit' => [
                 'plural' => ' errors',
-            ]
+            ],
         ];
 
         yield new AtPathException(
-            ".reports.report-name.check-reporter.github-status.unit.singular",
+            '.reports.report-name.check-reporter.github-status.unit.singular',
             'must be a string',
         ) => [
             'unit' => [
                 'singular' => null,
-                'plural' => ' errors',
-            ]
+                'plural'   => ' errors',
+            ],
         ];
 
         yield new AtPathException(
-            ".reports.report-name.check-reporter.github-status.unit.plural",
+            '.reports.report-name.check-reporter.github-status.unit.plural',
             'must be a string',
         ) => [
             'unit' => [
                 'singular' => ' error',
-                'plural' => null,
-            ]
+                'plural'   => null,
+            ],
         ];
     }
 }

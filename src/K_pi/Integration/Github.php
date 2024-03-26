@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace K_pi\Integration;
 
 use K_pi\Data\Github\StatusState;
@@ -15,13 +17,10 @@ interface Github
         int $number,
     ): array;
 
-    public function writeDiscussion(
-        string $id,
-        string $body,
-    ): void;
+    public function writeDiscussion(string $id, string $body): void;
 
     /**
-     * @param positive-int $pullRequest
+     * @param positive-int     $pullRequest
      * @param non-empty-string $checkName
      */
     public function createCheckRun(
@@ -32,7 +31,7 @@ interface Github
     ): void;
 
     /**
-     * @param positive-int $pullRequest
+     * @param positive-int     $pullRequest
      * @param non-empty-string $context
      * @param non-empty-string $description
      */

@@ -4,22 +4,19 @@ declare(strict_types=1);
 
 namespace K_pi\Libs\KnpGithubApi;
 
-use Github\Api\GraphQL;
+use Exception;
 use Github\Client;
 use K_pi;
-use K_pi\Configuration\ReportConfiguration;
 use K_pi\Data\Github\StatusState;
 
 final class Github implements K_pi\Integration\Github
 {
-    public function __construct(private readonly Client $github)
-    {
-    }
+    public function __construct(private readonly Client $github) {}
 
     public function readDiscussion(
         string $owner,
         string $repository,
-        int $number
+        int $number,
     ): array {
         $response = $this->github->graphql()->execute(
             <<<'GRAPHQL'
@@ -31,33 +28,44 @@ final class Github implements K_pi\Integration\Github
                     }
                   }
                 }
-                GRAPHQL,
+                GRAPHQL
+            ,
             [
-                'owner' => $owner,
+                'owner'      => $owner,
                 'repository' => $repository,
-                'number' => $number,
-            ]
+                'number'     => $number,
+            ],
         );
 
         if (isset($response['errors'])) {
-            throw new \Exception(json_encode($response['errors'], JSON_THROW_ON_ERROR));
+            throw new Exception(
+                json_encode($response['errors'], JSON_THROW_ON_ERROR),
+            );
         }
 
-        if (\is_string($id = $response['data']['repository']['discussion']['id'] ?? null) === false) {
-            throw new \Exception('Unable to get discussion ID from '.json_encode($response, JSON_THROW_ON_ERROR));
+        $id = $response['data']['repository']['discussion']['id'] ?? null;
+
+        if (false === \is_string($id)) {
+            throw new Exception(
+                'Unable to get discussion ID from ' .
+                    json_encode($response, JSON_THROW_ON_ERROR),
+            );
         }
 
-        if (\is_string($body = $response['data']['repository']['discussion']['body'] ?? null) === false) {
-            throw new \Exception('Unable to get discussion body from '.json_encode($response, JSON_THROW_ON_ERROR));
+        $body = $response['data']['repository']['discussion']['body'] ?? null;
+
+        if (false === \is_string($body)) {
+            throw new Exception(
+                'Unable to get discussion body from ' .
+                    json_encode($response, JSON_THROW_ON_ERROR),
+            );
         }
 
         return ['id' => $id, 'body' => $body];
     }
 
-    public function writeDiscussion(
-        string $id,
-        string $body,
-    ): void {
+    public function writeDiscussion(string $id, string $body): void
+    {
         $response = $this->github->graphql()->execute(
             <<<'GRAPHQL'
                 mutation($id: ID!, $body: String!) {
@@ -65,15 +73,18 @@ final class Github implements K_pi\Integration\Github
                     clientMutationId
                   }
                 }
-                GRAPHQL,
+                GRAPHQL
+            ,
             [
                 'id'   => $id,
-                'body' => $body
-            ]
+                'body' => $body,
+            ],
         );
 
         if (isset($response['errors'])) {
-            throw new \Exception(json_encode($response['errors'], JSON_THROW_ON_ERROR));
+            throw new Exception(
+                json_encode($response['errors'], JSON_THROW_ON_ERROR),
+            );
         }
     }
 
@@ -93,20 +104,31 @@ final class Github implements K_pi\Integration\Github
                     }
                   }
                 }
-                GRAPHQL,
+                GRAPHQL
+            ,
             [
-                'owner' => $owner,
-                'repository' => $repository,
+                'owner'       => $owner,
+                'repository'  => $repository,
                 'pullRequest' => $pullRequest,
-            ]
+            ],
         );
 
-        if (\is_string($repositoryId = $response['data']['repository']['id'] ?? null) === false) {
-            throw new \Exception('Unable to get repository ID from '.json_encode($response));
+        $repositoryId = $response['data']['repository']['id'] ?? null;
+
+        if (false === \is_string($repositoryId)) {
+            throw new Exception(
+                'Unable to get repository ID from ' . json_encode($response),
+            );
         }
 
-        if (\is_string($commitHash = $response['data']['repository']['pullRequest']['headRefOid'] ?? null) === false) {
-            throw new \Exception('Unable to get pull-request commit hash from '.json_encode($response));
+        $commitHash = $response['data']['repository']['pullRequest']['headRefOid'] ??
+            null;
+
+        if (false === \is_string($commitHash)) {
+            throw new Exception(
+                'Unable to get pull-request commit hash from ' .
+                    json_encode($response),
+            );
         }
 
         $this->github->graphql()->execute(
@@ -116,16 +138,17 @@ final class Github implements K_pi\Integration\Github
                     clientMutationId
                   }
                 }
-                GRAPHQL,
+                GRAPHQL
+            ,
             [
-                'repositoryId'  => $repositoryId,
-                'commitHash'    => $commitHash,
-                'checkName'     => $checkName,
-                'output' => [
-                    'title' => 'I need some burger',
+                'repositoryId' => $repositoryId,
+                'commitHash'   => $commitHash,
+                'checkName'    => $checkName,
+                'output'       => [
+                    'title'   => 'I need some burger',
                     'summary' => 'we are living in a yellow summary',
-                ]
-            ]
+                ],
+            ],
         );
     }
 
@@ -146,16 +169,23 @@ final class Github implements K_pi\Integration\Github
                     }
                   }
                 }
-                GRAPHQL,
+                GRAPHQL
+            ,
             [
                 'owner'       => $owner,
                 'repository'  => $repository,
                 'pullRequest' => $pullRequest,
-            ]
+            ],
         );
 
-        if (\is_string($commitHash = $response['data']['repository']['pullRequest']['headRefOid'] ?? null) === false) {
-            throw new \Exception('Unable to get pull-request commit hash from '.json_encode($response));
+        $commitHash = $response['data']['repository']['pullRequest']['headRefOid'] ??
+            null;
+
+        if (false === \is_string($commitHash)) {
+            throw new Exception(
+                'Unable to get pull-request commit hash from ' .
+                    json_encode($response),
+            );
         }
 
         $this->github->repository()->statuses()->create(
@@ -166,7 +196,7 @@ final class Github implements K_pi\Integration\Github
                 'context'     => $context,
                 'description' => $description,
                 'state'       => $state->value,
-            ]
+            ],
         );
     }
 }

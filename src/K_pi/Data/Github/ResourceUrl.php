@@ -33,7 +33,13 @@ final class ResourceUrl
      */
     public function __construct(string $url)
     {
-        if (!preg_match('#^https://github\.com/(.+)/(.+)/(\w+)/(\d+)$#', $url, $matches)) {
+        if (
+            !preg_match(
+                '#^https://github\.com/(.+)/(.+)/(\w+)/(\d+)$#',
+                $url,
+                $matches,
+            )
+        ) {
             throw new InvalidArgumentException('Invalid Github resource url.');
         }
 
@@ -41,14 +47,14 @@ final class ResourceUrl
          * @var non-empty-string $owner
          * @var non-empty-string $repository
          * @var non-empty-string $type
-         * @var numeric-string $number
+         * @var numeric-string   $number
          */
         [, $owner, $repository, $type, $number] = $matches;
 
-        $this->owner = $owner;
+        $this->owner      = $owner;
         $this->repository = $repository;
-        $this->type = $type;
-        $number = (int) $number;
+        $this->type       = $type;
+        $number           = (int) $number;
 
         if (0 >= $number) {
             throw new InvalidArgumentException('Invalid Github resource url.');

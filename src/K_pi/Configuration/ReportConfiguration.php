@@ -7,14 +7,14 @@ namespace K_pi\Configuration;
 use K_pi\Configuration\Exception\AtPathException;
 use K_pi\Data\CheckReporterIntegration;
 use K_pi\Data\Extra;
-use K_pi\Data\Integration;
 use K_pi\Data\StorageIntegration;
 
 final class ReportConfiguration
 {
-    public function __construct(private readonly object $configuration, private string $reportName)
-    {
-    }
+    public function __construct(
+        private readonly object $configuration,
+        private readonly string $reportName,
+    ) {}
 
     /**
      * @return array{StorageIntegration, mixed}
@@ -22,10 +22,15 @@ final class ReportConfiguration
     public function getStorageConfiguration(): array
     {
         if (false === property_exists($this->configuration, 'storage')) {
-            throw new AtPathException(sprintf('.reports.%s', $this->reportName), 'property "storage" is mandatory');
+            throw new AtPathException(
+                sprintf('.reports.%s', $this->reportName),
+                'property "storage" is mandatory',
+            );
         }
 
-        foreach (get_object_vars($this->configuration->storage) as $integrationName => $integrationConfiguration) {
+        foreach (
+            get_object_vars($this->configuration->storage) as $integrationName => $integrationConfiguration
+        ) {
             $integration = StorageIntegration::tryFrom($integrationName);
 
             if (null === $integration) {
@@ -34,11 +39,16 @@ final class ReportConfiguration
                     sprintf(
                         'integration "%s" does not exists, must be %s',
                         $integration,
-                        join(" or ", array_map(
-                            fn (StorageIntegration $integration) => '"' . $integration->value . '"',
-                            StorageIntegration::cases(),
-                        ))
-                    )
+                        implode(
+                            ' or ',
+                            array_map(
+                                static fn (
+                                    StorageIntegration $integration,
+                                ) => '"' . $integration->value . '"',
+                                StorageIntegration::cases(),
+                            ),
+                        ),
+                    ),
                 );
             }
 
@@ -49,11 +59,16 @@ final class ReportConfiguration
             sprintf('.reports.%s.storage', $this->reportName),
             sprintf(
                 'integration is mandatory, must be %s',
-                join(" or ", array_map(
-                    fn (StorageIntegration $integration) => '"' . $integration->value . '"',
-                    StorageIntegration::cases(),
-                ))
-            )
+                implode(
+                    ' or ',
+                    array_map(
+                        static fn (StorageIntegration $integration) => '"' .
+                            $integration->value .
+                            '"',
+                        StorageIntegration::cases(),
+                    ),
+                ),
+            ),
         );
     }
 
@@ -64,13 +79,13 @@ final class ReportConfiguration
     {
         $configuration = get_object_vars($this->configuration);
 
-        if (false === array_key_exists('check-reporter', $configuration)) {
+        if (false === \array_key_exists('check-reporter', $configuration)) {
             return [];
         }
 
         $checkReporters = $configuration['check-reporter'];
 
-        if (false === is_object($checkReporters)) {
+        if (false === \is_object($checkReporters)) {
             throw new AtPathException(
                 sprintf('.reports.%s.check-reporter', $this->reportName),
                 'object expected',
@@ -79,7 +94,9 @@ final class ReportConfiguration
 
         $empty = true;
 
-        foreach (get_object_vars($checkReporters) as $integrationName => $integrationConfiguration) {
+        foreach (
+            get_object_vars($checkReporters) as $integrationName => $integrationConfiguration
+        ) {
             $integration = CheckReporterIntegration::tryFrom($integrationName);
 
             if (null === $integration) {
@@ -88,11 +105,16 @@ final class ReportConfiguration
                     sprintf(
                         'integration "%s" does not exists, must be %s',
                         $integration,
-                        join(" or ", array_map(
-                            fn (CheckReporterIntegration $integration) => '"' . $integration->value . '"',
-                            CheckReporterIntegration::cases(),
-                        ))
-                    )
+                        implode(
+                            ' or ',
+                            array_map(
+                                static fn (
+                                    CheckReporterIntegration $integration,
+                                ) => '"' . $integration->value . '"',
+                                CheckReporterIntegration::cases(),
+                            ),
+                        ),
+                    ),
                 );
             }
 
@@ -106,11 +128,16 @@ final class ReportConfiguration
                 sprintf('.reports.%s.check-reporter', $this->reportName),
                 sprintf(
                     'integration is mandatory, must be %s',
-                    join(" or ", array_map(
-                        fn (CheckReporterIntegration $integration) => '"' . $integration->value . '"',
-                        CheckReporterIntegration::cases(),
-                    ))
-                )
+                    implode(
+                        ' or ',
+                        array_map(
+                            static fn (
+                                CheckReporterIntegration $integration,
+                            ) => '"' . $integration->value . '"',
+                            CheckReporterIntegration::cases(),
+                        ),
+                    ),
+                ),
             );
         }
     }
@@ -126,10 +153,10 @@ final class ReportConfiguration
 
         $colors = $this->configuration->colors;
 
-        if (false === is_object($colors)) {
+        if (false === \is_object($colors)) {
             throw new AtPathException(
                 sprintf('.reports.%s.colors', $this->reportName),
-                'non empty object is expected'
+                'non empty object is expected',
             );
         }
 
@@ -141,13 +168,11 @@ final class ReportConfiguration
             if ('' === $name) {
                 throw new AtPathException(
                     sprintf('.reports.%s.colors', $this->reportName),
-                    sprintf(
-                        'property name must be non-empty string',
-                    )
+                    'property name must be non-empty string',
                 );
             }
 
-            if (false === is_string($value) || '' === $value) {
+            if (false === \is_string($value) || '' === $value) {
                 throw new AtPathException(
                     sprintf('.reports.%s.colors.%s', $this->reportName, $name),
                     'color must be non-empty string',
@@ -160,7 +185,7 @@ final class ReportConfiguration
         if ($empty) {
             throw new AtPathException(
                 sprintf('.reports.%s.colors', $this->reportName),
-                'non empty object is expected'
+                'non empty object is expected',
             );
         }
     }
@@ -176,10 +201,10 @@ final class ReportConfiguration
 
         $extra = $this->configuration->extra;
 
-        if (false === is_object($extra)) {
+        if (false === \is_object($extra)) {
             throw new AtPathException(
                 sprintf('.reports.%s.extra', $this->reportName),
-                'non empty object is expected'
+                'non empty object is expected',
             );
         }
 
@@ -191,18 +216,14 @@ final class ReportConfiguration
             if ('' === $name) {
                 throw new AtPathException(
                     sprintf('.reports.%s.extra', $this->reportName),
-                    sprintf(
-                        'property name must be non-empty string',
-                    )
+                    'property name must be non-empty string',
                 );
             }
 
-            if (false === is_string($value)) {
+            if (false === \is_string($value)) {
                 throw new AtPathException(
                     sprintf('.reports.%s.extra.%s', $this->reportName, $name),
-                    sprintf(
-                        'must be a string'
-                    )
+                    'must be a string',
                 );
             }
 
@@ -214,11 +235,16 @@ final class ReportConfiguration
                     sprintf(
                         'extra "%s" does not exists, must be %s',
                         $value,
-                        join(" or ", array_map(
-                            fn (Extra $extra) => '"' . $extra->value . '"',
-                            Extra::cases(),
-                        ))
-                    )
+                        implode(
+                            ' or ',
+                            array_map(
+                                static fn (Extra $extra) => '"' .
+                                    $extra->value .
+                                    '"',
+                                Extra::cases(),
+                            ),
+                        ),
+                    ),
                 );
             }
 
@@ -228,7 +254,7 @@ final class ReportConfiguration
         if ($empty) {
             throw new AtPathException(
                 sprintf('.reports.%s.extra', $this->reportName),
-                'non empty object is expected'
+                'non empty object is expected',
             );
         }
     }

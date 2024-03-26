@@ -39,7 +39,7 @@ jobs:
           - report: outdated-dependencies
             query: '{"composer.json": .composer.packages|map(select(.status=="outdated"))|length}'
           - report: class-bugs
-            query: ". | to_entries | map({key: .key, value: .value.bugs}) | map(select(.value != null)) | from_entries"
+            query: '. | to_entries | map({key: .key, value: .value.bugs}) | map(select(.value != null)) | from_entries'
     steps:
       - name: jq
         id: jq

@@ -4,19 +4,17 @@ declare(strict_types=1);
 
 namespace K_pi\Integration\Github\CheckRun;
 
-use Exception;
 use K_pi\CheckReporter as CheckReporterInterface;
 use K_pi\Data\Diff;
-use K_pi\EnvVars;
 use K_pi\Integration\Github;
 use K_pi\Integration\Github\Variables;
 
 final class CheckReporter implements CheckReporterInterface
 {
-    public function __construct(private readonly Github $github, private readonly Variables $variables)
-    {
-
-    }
+    public function __construct(
+        private readonly Github $github,
+        private readonly Variables $variables,
+    ) {}
 
     public function send(Diff ...$notifications): void
     {

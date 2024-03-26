@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace spec\K_pi\Integration\Github\Discussion\Storage;
 
-use Exception;
 use K_pi\Configuration\Exception\AtPathException;
 use K_pi\Integration\Github\Discussion\Storage\Configuration;
 use PhpSpec\ObjectBehavior;
-use stdClass;
 
 class ConfigurationSpec extends ObjectBehavior
 {
@@ -33,7 +33,7 @@ class ConfigurationSpec extends ObjectBehavior
 
     function it_supports_full_configuration($configuration)
     {
-        $configuration->report = false;
+        $configuration->report  = false;
         $configuration->persist = false;
 
         $this->discussion->owner->shouldBe('KnpLabs');
@@ -56,22 +56,31 @@ class ConfigurationSpec extends ObjectBehavior
 
     private function invalidDataProvider()
     {
-        yield new AtPathException('.reports.report-name.storage.github-discussion.url', 'Invalid Github resource url.') => [
-            'url' => 'https://github.com/KnpLabs/K-pi/discussions/0',
+        yield new AtPathException(
+            '.reports.report-name.storage.github-discussion.url',
+            'Invalid Github resource url.',
+        ) => [
+            'url'     => 'https://github.com/KnpLabs/K-pi/discussions/0',
             'persist' => true,
-            'report' => true,
+            'report'  => true,
         ];
 
-        yield new AtPathException('.reports.report-name.storage.github-discussion.url', 'Invalid Github resource url.') => [
-            'url' => 'https://github.com/KnpLabs//discussions/42',
+        yield new AtPathException(
+            '.reports.report-name.storage.github-discussion.url',
+            'Invalid Github resource url.',
+        ) => [
+            'url'     => 'https://github.com/KnpLabs//discussions/42',
             'persist' => true,
-            'report' => true,
+            'report'  => true,
         ];
 
-        yield new AtPathException('.reports.report-name.storage.github-discussion.persist', 'must be a boolean.') => [
-            'url' => 'https://github.com/KnpLabs/K-pi/discussions/42',
+        yield new AtPathException(
+            '.reports.report-name.storage.github-discussion.persist',
+            'must be a boolean.',
+        ) => [
+            'url'     => 'https://github.com/KnpLabs/K-pi/discussions/42',
             'persist' => 1,
-            'report' => true,
+            'report'  => true,
         ];
     }
 }

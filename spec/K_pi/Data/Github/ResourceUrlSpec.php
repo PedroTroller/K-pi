@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace spec\K_pi\Data\Github;
 
 use InvalidArgumentException;
@@ -31,17 +33,24 @@ class ResourceUrlSpec extends ObjectBehavior
         foreach ($this->failureDataProvider() as $url => $message) {
             $this->beConstructedWith($url);
 
-            $this->shouldThrow(new InvalidArgumentException($message))->duringInstantiation();
+            $this->shouldThrow(
+                new InvalidArgumentException($message),
+            )->duringInstantiation();
         }
     }
 
-    private function failureDataProvider(): iterable {
+    private function failureDataProvider(): iterable
+    {
+        yield 'https://github.com//K-pi/pull/11' => 'Invalid Github resource url.';
 
-        yield 'https://github.com//K-pi/pull/11'        => 'Invalid Github resource url.';
-        yield 'https://github.com/KnpLabs//pull/11'     => 'Invalid Github resource url.';
-        yield 'https://github.com/KnpLabs/K-pi//11'     => 'Invalid Github resource url.';
-        yield 'https://github.com/KnpLabs/K-pi/pull/0'  => 'Invalid Github resource url.';
+        yield 'https://github.com/KnpLabs//pull/11' => 'Invalid Github resource url.';
+
+        yield 'https://github.com/KnpLabs/K-pi//11' => 'Invalid Github resource url.';
+
+        yield 'https://github.com/KnpLabs/K-pi/pull/0' => 'Invalid Github resource url.';
+
         yield 'https://github.com/KnpLabs/K-pi/pull/-1' => 'Invalid Github resource url.';
+
         yield 'https://gitlab.org/KnpLabs/K-pi/pull/11' => 'Invalid Github resource url.';
     }
 }

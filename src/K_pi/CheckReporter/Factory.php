@@ -11,5 +11,8 @@ interface Factory
     /**
      * @param non-empty-string $reportName
      */
-    public function build(mixed $configuration, string $reportName): CheckReporter;
+    public function build(
+        mixed $configuration,
+        string $reportName,
+    ): CheckReporter;
 }
