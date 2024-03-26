@@ -62,6 +62,7 @@ final class CheckCommand extends AbstractCommand
                 name: $name,
                 from: $report->last($name) ?? 0,
                 to: $value,
+                precision: $reportConfiguration->getPrecision(),
             ),
             array_values($values),
             array_keys($values),
