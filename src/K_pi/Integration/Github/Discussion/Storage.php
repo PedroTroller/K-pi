@@ -288,7 +288,7 @@ final class Storage implements StorageInterface
 
         $datasets = [...$report];
 
-        foreach ($configuration->getExtra() as $name => $extra) {
+        foreach ($configuration->getExtra() as $extra => $name) {
             $dataset = $report->getExtra($extra);
 
             $datasets = [
